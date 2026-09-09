@@ -2,7 +2,8 @@
 
 import { useCallback, useState, DragEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { UploadCloud, FileSpreadsheet, X, CheckCircle2 } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, X, CheckCircle2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { uploadDataset } from "@/lib/api/datasets";
 import { useToast } from "@/components/ui/Toast";
@@ -63,10 +64,17 @@ export default function UploadDatasetPage() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <div className="page-shell max-w-2xl">
       <div>
-        <h1 className="font-display text-xl font-semibold text-text-primary">Upload Dataset</h1>
-        <p className="text-sm text-text-muted mt-1">
+        <Link
+          href="/datasets"
+          className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-signal mb-3 transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to datasets
+        </Link>
+        <h1 className="page-title">Upload Dataset</h1>
+        <p className="page-subtitle">
           Upload a CSV or Excel file to begin analysis.
         </p>
       </div>
@@ -80,15 +88,26 @@ export default function UploadDatasetPage() {
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
           className={cn(
-            "border-2 border-dashed rounded-lg py-16 flex flex-col items-center justify-center gap-3 transition-colors",
-            dragOver ? "border-signal bg-signal-soft" : "border-border bg-surface"
+            "border-2 border-dashed rounded-[var(--radius-lg)] py-20 flex flex-col items-center justify-center gap-4 text-center transition-all duration-200",
+            dragOver
+              ? "border-signal bg-signal-soft scale-[1.01]"
+              : "border-border bg-surface"
           )}
         >
-          <UploadCloud className={cn("h-8 w-8", dragOver ? "text-signal" : "text-text-muted")} />
-          <div className="text-center">
+          <div
+            className={cn(
+              "rounded-full p-4 border transition-colors",
+              dragOver ? "bg-signal/15 border-signal/30" : "bg-surface-raised border-border"
+            )}
+          >
+            <UploadCloud
+              className={cn("h-8 w-8", dragOver ? "text-signal" : "text-text-muted")}
+            />
+          </div>
+          <div>
             <p className="text-sm text-text-primary">
-              Drag & drop your file here, or{" "}
-              <label className="text-signal hover:underline cursor-pointer">
+              Drag &amp; drop your file here, or{" "}
+              <label className="text-signal font-medium hover:underline cursor-pointer">
                 browse
                 <input
                   type="file"
@@ -98,18 +117,20 @@ export default function UploadDatasetPage() {
                 />
               </label>
             </p>
-            <p className="text-xs text-text-muted mt-1">CSV, XLSX, or XLS — up to a reasonable size</p>
+            <p className="text-xs text-text-muted mt-1.5">
+              CSV, XLSX, or XLS — up to a reasonable size
+            </p>
           </div>
         </div>
       ) : (
-        <div className="border border-border rounded-lg bg-surface p-5 space-y-4">
+        <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-md bg-signal/10 p-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="rounded-[var(--radius-sm)] bg-signal/10 border border-signal/20 p-2.5 shrink-0">
                 <FileSpreadsheet className="h-5 w-5 text-signal" />
               </div>
-              <div>
-                <p className="text-sm text-text-primary font-medium">{file.name}</p>
+              <div className="min-w-0">
+                <p className="text-sm text-text-primary font-medium truncate">{file.name}</p>
                 <p className="text-xs text-text-muted font-data">
                   {(file.size / 1024).toFixed(1)} KB
                 </p>
@@ -118,7 +139,8 @@ export default function UploadDatasetPage() {
             {!uploading && (
               <button
                 onClick={() => setFile(null)}
-                className="text-text-muted hover:text-negative"
+                className="rounded-md p-1.5 text-text-muted hover:text-negative hover:bg-negative/10 transition-colors"
+                aria-label="Remove selected file"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -133,21 +155,21 @@ export default function UploadDatasetPage() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-xs text-text-muted font-data mt-1.5">{progress}% uploaded</p>
+              <p className="text-xs text-text-muted font-data mt-2">{progress}% uploaded</p>
             </div>
           )}
 
           {!uploading && (
-            <Button onClick={handleUpload} className="w-full">
+            <Button onClick={handleUpload} className="w-full" size="lg">
               <CheckCircle2 className="h-4 w-4" />
-              Confirm & Upload
+              Confirm &amp; Upload
             </Button>
           )}
         </div>
       )}
 
       {error && (
-        <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-md px-3 py-2">
+        <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-[var(--radius-sm)] px-4 py-3">
           {error}
         </p>
       )}

@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Rows3, Columns3, Activity, Wand2, Boxes } from "lucide-react";
+import {
+  ArrowLeft,
+  Rows3,
+  Columns3,
+  Activity,
+  Wand2,
+  Boxes,
+  FileSpreadsheet,
+  ShieldCheck,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Skeleton from "@/components/ui/Skeleton";
@@ -27,12 +36,15 @@ export default function DatasetDetailPage() {
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<Tab>("preview");
 
-  const tabs: { key: Tab; label: string; icon: typeof Activity }[] = [
-    { key: "preview", label: "Preview", icon: Rows3 },
-    { key: "quality", label: "Data Quality", icon: Activity },
-    { key: "cleaning", label: "Data Cleaning", icon: Wand2 },
-    { key: "warehouse", label: "Warehouse", icon: Boxes },
-  ];
+  const tabs: { key: Tab; label: string; icon: typeof Activity }[] = useMemo(
+    () => [
+      { key: "preview", label: "Preview", icon: Rows3 },
+      { key: "quality", label: "Data Quality", icon: Activity },
+      { key: "cleaning", label: "Data Cleaning", icon: Wand2 },
+      { key: "warehouse", label: "Warehouse", icon: Boxes },
+    ],
+    []
+  );
 
   const loadMeta = useCallback(async () => {
     setLoading(true);
@@ -51,91 +63,103 @@ export default function DatasetDetailPage() {
     loadMeta();
   }, [loadMeta]);
 
+  const sourceType = meta ? meta.filename.split(".").pop()?.toUpperCase() : null;
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="page-shell">
       <div>
         <Link
           href="/datasets"
-          className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-signal mb-3"
+          className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-signal mb-4 transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to datasets
         </Link>
 
         {loading && !meta ? (
-          <Skeleton className="h-8 w-64" />
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-72" />
+            <Skeleton className="h-4 w-48" />
+          </div>
         ) : meta ? (
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-xl font-semibold text-text-primary font-data">
-              {meta.filename}
-            </h1>
-            <Badge variant="info">{meta.rows} rows</Badge>
-            <Badge variant="signal">{meta.columns} columns</Badge>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="rounded-[var(--radius-sm)] bg-signal/10 border border-signal/20 p-2.5">
+                <FileSpreadsheet className="h-5 w-5 text-signal" />
+              </div>
+              <h1 className="page-title font-data">{meta.filename}</h1>
+              <Badge variant="info">
+                {sourceType} · {meta.rows.toLocaleString()} rows
+              </Badge>
+            </div>
+            <p className="text-sm text-text-muted pl-11">
+              {meta.columns} columns · {meta.total_pages} preview pages
+            </p>
           </div>
         ) : (
-          <h1 className="font-display text-xl font-semibold text-text-primary">Dataset</h1>
+          <h1 className="page-title">Dataset</h1>
         )}
       </div>
 
       {/* Stats */}
       {meta && !loading && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card>
+          <Card interactive>
             <CardContent className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wide">Rows</p>
-                <p className="font-data text-2xl font-semibold text-text-primary mt-1">
+                <p className="text-xs font-medium uppercase tracking-wider text-text-muted">Rows</p>
+                <p className="font-data text-3xl font-semibold text-text-primary mt-1.5 tracking-tight">
                   {meta.rows.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-full bg-signal/10 p-2.5">
+              <div className="rounded-[var(--radius-sm)] bg-signal/10 border border-signal/20 p-2.5">
                 <Rows3 className="h-5 w-5 text-signal" />
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card interactive>
             <CardContent className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wide">Columns</p>
-                <p className="font-data text-2xl font-semibold text-text-primary mt-1">
+                <p className="text-xs font-medium uppercase tracking-wider text-text-muted">Columns</p>
+                <p className="font-data text-3xl font-semibold text-text-primary mt-1.5 tracking-tight">
                   {meta.columns}
                 </p>
               </div>
-              <div className="rounded-full bg-positive/10 p-2.5">
+              <div className="rounded-[var(--radius-sm)] bg-positive/10 border border-positive/20 p-2.5">
                 <Columns3 className="h-5 w-5 text-positive" />
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card interactive>
             <CardContent className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wide">Source Type</p>
-                <p className="font-data text-2xl font-semibold text-text-primary mt-1 capitalize">
+                <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
+                  Source Type
+                </p>
+                <p className="font-data text-3xl font-semibold text-text-primary mt-1.5 tracking-tight capitalize">
                   {meta.filename.split(".").pop()}
                 </p>
               </div>
-              <div className="rounded-full bg-info/10 p-2.5">
-                <Columns3 className="h-5 w-5 text-info" />
+              <div className="rounded-[var(--radius-sm)] bg-info/10 border border-info/20 p-2.5">
+                <ShieldCheck className="h-5 w-5 text-info" />
               </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {error && (
-        <ErrorState message="Unable to load dataset." onRetry={loadMeta} />
-      )}
+      {error && <ErrorState message="Unable to load dataset." onRetry={loadMeta} />}
 
       {!error && (
         <>
           {/* Tabs */}
-          <div className="flex gap-1 border-b border-border">
+          <div className="flex gap-1 border-b border-border overflow-x-auto">
             {tabs.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
                 className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors",
+                  "inline-flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors whitespace-nowrap",
                   tab === key
                     ? "border-signal text-signal font-medium"
                     : "border-transparent text-text-muted hover:text-text-primary"

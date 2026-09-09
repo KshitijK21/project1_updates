@@ -1,32 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Database, Upload, CheckCircle2, Trash2 } from "lucide-react";
-import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from "@/components/ui/Table";
+import { Search, Upload, Database, LayoutGrid, Rows3 } from "lucide-react";
 import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
-import Skeleton from "@/components/ui/Skeleton";
+import { TableSkeleton, DatasetSkeleton } from "@/components/ui/Skeletons";
 import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
+import DatasetTable from "@/components/datasets/DatasetTable";
+import DatasetCard from "@/components/datasets/DatasetCard";
 import { listDatasets, deleteDataset } from "@/lib/api/datasets";
+import { getDatasetHealth } from "@/lib/api/profiling";
 import { useToast } from "@/components/ui/Toast";
 import { isAxiosError } from "axios";
-import { Dataset } from "@/types/dataset";
+import { DatasetWithHealth } from "@/components/datasets/datasetHealth";
+import { cn } from "@/utils/cn";
+
+type ViewMode = "table" | "grid";
 
 export default function DatasetsPage() {
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [datasets, setDatasets] = useState<DatasetWithHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<ViewMode>("table");
   const { showToast } = useToast();
 
   async function load() {
     setLoading(true);
     setError(false);
     try {
-      const data = await listDatasets();
-      setDatasets(data);
+      const list = await listDatasets();
+      const withHealth = await Promise.all(
+        list.map(async (d) => {
+          const health = await getDatasetHealth(d.dataset_id);
+          return { ...d, health_score: health?.health_score ?? null };
+        })
+      );
+      setDatasets(withHealth);
     } catch {
       setError(true);
     } finally {
@@ -38,8 +50,21 @@ export default function DatasetsPage() {
     load();
   }, []);
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return datasets;
+    return datasets.filter(
+      (d) =>
+        d.filename.toLowerCase().includes(q) || d.status.toLowerCase().includes(q)
+    );
+  }, [datasets, query]);
+
   async function handleDelete(id: string, filename: string) {
-    if (!window.confirm(`Delete "${filename}"? This will permanently remove the dataset and all related analysis.`)) {
+    if (
+      !window.confirm(
+        `Delete "${filename}"? This will permanently remove the dataset and all related analysis.`
+      )
+    ) {
       return;
     }
     setDeleting(id);
@@ -58,17 +83,20 @@ export default function DatasetsPage() {
     }
   }
 
+  const hasDatasets = datasets.length > 0;
+  const showEmptySearch = hasDatasets && filtered.length === 0;
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="page-shell">
+      <div className="page-header">
         <div>
-          <h1 className="font-display text-xl font-semibold text-text-primary">Datasets</h1>
-          <p className="text-sm text-text-muted mt-1">
-            All datasets uploaded to your workspace.
+          <h1 className="page-title">Datasets</h1>
+          <p className="page-subtitle">
+            Manage and explore your data.
           </p>
         </div>
         <Link href="/datasets/upload">
-          <Button>
+          <Button size="lg">
             <Upload className="h-4 w-4" />
             Upload dataset
           </Button>
@@ -77,68 +105,96 @@ export default function DatasetsPage() {
 
       {error ? (
         <ErrorState message="Unable to load datasets." onRetry={load} />
-      ) : loading ? (
-        <div className="space-y-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      ) : datasets.length === 0 ? (
-        <EmptyState
-          icon={Database}
-          title="No datasets found"
-          description="Upload a CSV or Excel file to get started."
-          action={
-            <Link href="/datasets/upload">
-              <Button size="sm">
-                <Upload className="h-4 w-4" />
-                Upload dataset
-              </Button>
-            </Link>
-          }
-        />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Rows</TableHeaderCell>
-              <TableHeaderCell>Columns</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {datasets.map((d) => (
-              <TableRow key={d.dataset_id}>
-                <TableCell>
-                  <Link href={`/datasets/${d.dataset_id}`} className="hover:text-signal">
-                    {d.filename}
-                  </Link>
-                </TableCell>
-                <TableCell className="font-data">{d.rows.toLocaleString()}</TableCell>
-                <TableCell className="font-data">{d.columns}</TableCell>
-                <TableCell>
-                  <Badge variant="positive">
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                    {d.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
+        <>
+          {/* Toolbar */}
+          {hasDatasets && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search datasets…"
+                  className="w-full h-10 rounded-[var(--radius-sm)] bg-surface border border-border pl-9 pr-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-signal/40 focus:border-signal-dim transition-colors"
+                  aria-label="Search datasets"
+                />
+              </div>
+              <div className="flex rounded-[var(--radius-sm)] border border-border overflow-hidden bg-surface">
+                {(
+                  [
+                    { mode: "table" as const, icon: Rows3, label: "Table" },
+                    { mode: "grid" as const, icon: LayoutGrid, label: "Grid" },
+                  ]
+                ).map(({ mode, icon: Icon, label }) => (
                   <button
-                    onClick={() => handleDelete(d.dataset_id, d.filename)}
-                    disabled={deleting === d.dataset_id}
-                    className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-negative disabled:opacity-50"
-                    title="Delete dataset"
+                    key={mode}
+                    onClick={() => setView(mode)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 h-10 text-xs font-medium transition-colors",
+                      view === mode
+                        ? "bg-signal/15 text-signal"
+                        : "text-text-secondary hover:text-text-primary"
+                    )}
+                    aria-pressed={view === mode}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    {deleting === d.dataset_id ? "Deleting..." : "Delete"}
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{label}</span>
                   </button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Content */}
+          {loading ? (
+            view === "table" ? (
+              <TableSkeleton rows={6} cols={6} />
+            ) : (
+              <DatasetSkeleton count={6} />
+            )
+          ) : showEmptySearch ? (
+            <EmptyState
+              icon={Search}
+              title="No matching datasets"
+              description={`Nothing found for "${query}". Try a different search.`}
+            />
+          ) : datasets.length === 0 ? (
+            <EmptyState
+              icon={Database}
+              title="No datasets yet"
+              description="Upload your first dataset to begin analyzing your data."
+              action={
+                <Link href="/datasets/upload">
+                  <Button size="sm">
+                    <Upload className="h-4 w-4" />
+                    Upload dataset
+                  </Button>
+                </Link>
+              }
+            />
+          ) : view === "table" ? (
+            <DatasetTable
+              datasets={filtered}
+              deleting={deleting}
+              onDelete={(id) => {
+                const d = datasets.find((x) => x.dataset_id === id);
+                if (d) handleDelete(id, d.filename);
+              }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filtered.map((d) => (
+                <DatasetCard
+                  key={d.dataset_id}
+                  dataset={d}
+                  deleting={deleting === d.dataset_id}
+                  onDelete={() => handleDelete(d.dataset_id, d.filename)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
