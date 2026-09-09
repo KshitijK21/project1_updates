@@ -146,13 +146,14 @@ export default function DatasetsPage() {
                   <button
                     key={mode}
                     onClick={() => setView(mode)}
+                    aria-label={`${label} view`}
+                    aria-pressed={view === mode}
                     className={cn(
                       "inline-flex items-center gap-1.5 px-3 h-10 text-xs font-medium transition-colors",
                       view === mode
                         ? "bg-signal/15 text-signal"
                         : "text-text-secondary hover:text-text-primary"
                     )}
-                    aria-pressed={view === mode}
                   >
                     <Icon className="h-4 w-4" />
                     <span className="hidden sm:inline">{label}</span>
