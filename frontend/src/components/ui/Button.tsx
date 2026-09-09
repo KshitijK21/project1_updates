@@ -10,7 +10,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    "bg-signal text-[#14110a] hover:bg-[#f0ac4c] font-medium shadow-[0_0_0_1px_rgba(233,162,59,0.3)]",
+    "bg-signal text-[#14110a] hover:bg-[#f0ac4c] font-medium shadow-sm shadow-signal/20 hover:shadow-md hover:shadow-signal/25",
   secondary:
     "bg-surface-raised text-text-primary border border-border-strong hover:border-signal-dim hover:bg-[#1f2529]",
   ghost: "bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-raised",
@@ -20,7 +20,7 @@ const variantStyles = {
 const sizeStyles = {
   sm: "h-8 px-3 text-sm gap-1.5",
   md: "h-10 px-4 text-sm gap-2",
-  lg: "h-12 px-6 text-base gap-2",
+  lg: "h-11 px-6 text-base gap-2",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -33,9 +33,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-md transition-colors duration-150",
+          "inline-flex items-center justify-center rounded-[var(--radius-sm)] transition-all duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:scale-[0.98]",
           variantStyles[variant],
           sizeStyles[size],
           className

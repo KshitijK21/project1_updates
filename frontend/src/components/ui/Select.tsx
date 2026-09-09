@@ -32,7 +32,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              "w-full h-10 rounded-md bg-surface border border-border px-3 pr-9 text-sm text-text-primary appearance-none",
+              "w-full h-10 rounded-[var(--radius-sm)] bg-surface border border-border px-3 pr-9 text-sm text-text-primary appearance-none",
               "focus:outline-none focus:ring-2 focus:ring-signal/40 focus:border-signal-dim",
               "transition-colors duration-150 cursor-pointer",
               error && "border-negative",

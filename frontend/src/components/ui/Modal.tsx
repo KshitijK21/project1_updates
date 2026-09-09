@@ -39,24 +39,28 @@ export default function Modal({ open, onClose, title, children, size = "md" }: M
         onClick={onClose}
       />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         className={cn(
-          "relative w-full rounded-lg bg-surface-raised border border-border-strong shadow-2xl",
+          "relative w-full rounded-[var(--radius-lg)] bg-surface-raised border border-border-strong shadow-[var(--shadow-lg)]",
+          "animate-in zoom-in-95 fade-in duration-150",
           sizeStyles[size]
         )}
       >
         {title && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <h3 className="font-display font-semibold text-text-primary">{title}</h3>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <h3 className="font-display font-semibold text-base text-text-primary">{title}</h3>
             <button
               onClick={onClose}
-              className="text-text-muted hover:text-text-primary transition-colors"
+              className="rounded-md p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
         )}
-        <div className="p-5">{children}</div>
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );
