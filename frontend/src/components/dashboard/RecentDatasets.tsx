@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Database, ArrowRight, FileSpreadsheet } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { MetricCardSkeleton } from "@/components/ui/Skeletons";
 import { Dataset } from "@/types/dataset";
 
 interface DatasetWithHealth extends Dataset {

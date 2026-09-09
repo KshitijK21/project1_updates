@@ -130,8 +130,6 @@ export default function AnalyticsPage() {
     );
   }
 
-  const inputEnabled = selectedId && columnsReady && !preparing && !busy;
-
   return (
     <div className="page-shell !max-w-5xl !flex-nowrap h-[calc(100vh-4rem)] !mb-0 !pb-0">
       <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -46,22 +46,38 @@ export default function DatasetDetailPage() {
     []
   );
 
-  const loadMeta = useCallback(async () => {
+  const fetchMeta = useCallback((): Promise<DatasetPreview> => {
+    return getDatasetPreview(datasetId, 1, 20);
+  }, [datasetId]);
+
+  async function loadMeta() {
     setLoading(true);
     setError(false);
     try {
-      const result = await getDatasetPreview(datasetId, 1, 20);
-      setMeta(result);
+      setMeta(await fetchMeta());
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [datasetId]);
+  }
 
   useEffect(() => {
-    loadMeta();
-  }, [loadMeta]);
+    let cancelled = false;
+    fetchMeta()
+      .then((result) => {
+        if (!cancelled) setMeta(result);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchMeta]);
 
   const sourceType = meta ? meta.filename.split(".").pop()?.toUpperCase() : null;
 

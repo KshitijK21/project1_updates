@@ -10,8 +10,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
 import Select from "@/components/ui/Select";
 import { ChartCard, LineChart } from "@/components/charts";
-import { listDatasets } from "@/lib/api/datasets";
-import { getDatasetPreview } from "@/lib/api/datasets";
+import { listDatasets, getDatasetPreview } from "@/lib/api/datasets";
 import { getForecast } from "@/lib/api/predictive";
 import { ForecastResponse } from "@/types/predictive";
 import { ColumnInfo } from "@/types/dataset";
@@ -60,8 +59,12 @@ export default function ForecastsPage() {
     try {
       const preview = await getDatasetPreview(id, 1, 1);
       setColumns(preview.column_info);
-      const date = preview.column_info.find((c) => c.dtype?.includes("datetime") || c.dtype === "object")?.name ?? preview.column_info[0]?.name;
-      const numeric = preview.column_info.find((c) => c.dtype?.includes("int") || c.dtype?.includes("float"))?.name;
+      const date =
+        preview.column_info.find((c) => c.dtype?.includes("datetime") || c.dtype === "object")
+          ?.name ?? preview.column_info[0]?.name;
+      const numeric = preview.column_info.find(
+        (c) => c.dtype?.includes("int") || c.dtype?.includes("float")
+      )?.name;
       if (date) setDateCol(date);
       if (numeric) setMeasure(numeric);
       setNoData(preview.column_info.length === 0);
@@ -86,13 +89,15 @@ export default function ForecastsPage() {
     }
   }
 
-  // Combine historical + forecast into a single series for the line chart
   const chartData = useMemo(() => {
     if (!forecast) return [];
     const histByDate = new Map(forecast.historical.map((h) => [h.date, h.value]));
     const fcByDate = new Map(forecast.forecast.map((f) => [f.date, f.predicted_value]));
     const allDates = Array.from(
-      new Set([...forecast.historical.map((h) => h.date), ...forecast.forecast.map((f) => f.date)])
+      new Set([
+        ...forecast.historical.map((h) => h.date),
+        ...forecast.forecast.map((f) => f.date),
+      ])
     ).sort();
     return allDates.map((date) => ({
       date,
@@ -103,24 +108,28 @@ export default function ForecastsPage() {
 
   if (error) {
     return (
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="page-shell">
         <ErrorState message="Unable to load forecast." onRetry={runForecast} />
       </div>
     );
   }
 
-  const trendStyle = forecast ? TREND_STYLES[forecast.trend] ?? { variant: "default" as const } : null;
+  const trendStyle = forecast
+    ? TREND_STYLES[forecast.trend] ?? { variant: "default" as const }
+    : null;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="font-display text-xl font-semibold text-text-primary">Forecasts</h1>
-        <p className="text-sm text-text-muted mt-1">
-          Predict future trends from your time series data using linear regression.
-        </p>
+    <div className="page-shell">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Forecasts</h1>
+          <p className="page-subtitle">
+            Predict future trends from your time series data using linear regression.
+          </p>
+        </div>
       </div>
 
-      <Card className="max-w-full">
+      <Card>
         <CardHeader>
           <CardTitle>Forecast Configuration</CardTitle>
         </CardHeader>
@@ -145,12 +154,14 @@ export default function ForecastsPage() {
               options={numericCols.map((c) => ({ value: c.name, label: c.name }))}
             />
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Periods</label>
+              <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+                Periods
+              </label>
               <div className="relative">
                 <select
                   value={periods}
                   onChange={(e) => setPeriods(Number(e.target.value))}
-                  className="w-full h-10 rounded-md bg-surface border border-border px-3 pr-9 text-sm text-text-primary appearance-none focus:outline-none focus:ring-2 focus:ring-signal/40 cursor-pointer"
+                  className="w-full h-10 rounded-[var(--radius-sm)] bg-surface border border-border px-3 pr-9 text-sm text-text-primary appearance-none focus:outline-none focus:ring-2 focus:ring-signal/40 cursor-pointer transition-colors"
                 >
                   {[3, 7, 14, 30].map((p) => (
                     <option key={p} value={p}>
@@ -163,8 +174,12 @@ export default function ForecastsPage() {
             </div>
           </div>
           <div className="mt-4">
-            <Button onClick={runForecast} disabled={!selectedId || !dateCol || !measure} loading={loadingForecast}>
-              <TrendingUp className="h-4 w-4" />
+            <Button
+              onClick={runForecast}
+              disabled={!selectedId || !dateCol || !measure}
+              loading={loadingForecast}
+            >
+              {!loadingForecast && <TrendingUp className="h-4 w-4" />}
               Generate forecast
             </Button>
           </div>
@@ -219,19 +234,25 @@ export default function ForecastsPage() {
                 <CardTitle>Forecast Values</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-x-auto rounded-b-lg border-t border-border">
+                <div className="overflow-x-auto rounded-b-[var(--radius-md)] border-t border-border">
                   <table className="w-full text-xs font-data">
                     <thead className="bg-surface-raised">
                       <tr>
-                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">Date</th>
-                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">Predicted</th>
+                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">
+                          Date
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">
+                          Predicted
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                       {forecast.forecast.map((f, i) => (
                         <tr key={i}>
                           <td className="px-3 py-2 text-text-primary">{f.date}</td>
-                          <td className="px-3 py-2 text-positive">{f.predicted_value?.toLocaleString() ?? "—"}</td>
+                          <td className="px-3 py-2 text-positive">
+                            {f.predicted_value?.toLocaleString() ?? "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -244,21 +265,28 @@ export default function ForecastsPage() {
                 <CardTitle>Recent Historical</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-x-auto rounded-b-lg border-t border-border">
+                <div className="overflow-x-auto rounded-b-[var(--radius-md)] border-t border-border">
                   <table className="w-full text-xs font-data">
                     <thead className="bg-surface-raised">
                       <tr>
-                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">Date</th>
-                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">Value</th>
+                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">
+                          Date
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide text-text-muted">
+                          Value
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {forecast.historical.slice(-10).reverse().map((h, i) => (
-                        <tr key={i}>
-                          <td className="px-3 py-2 text-text-primary">{h.date}</td>
-                          <td className="px-3 py-2 text-text-primary">{h.value.toLocaleString()}</td>
-                        </tr>
-                      ))}
+                      {forecast.historical
+                        .slice(-10)
+                        .reverse()
+                        .map((h, i) => (
+                          <tr key={i}>
+                            <td className="px-3 py-2 text-text-primary">{h.date}</td>
+                            <td className="px-3 py-2 text-text-primary">{h.value.toLocaleString()}</td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>

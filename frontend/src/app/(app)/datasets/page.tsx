@@ -27,18 +27,21 @@ export default function DatasetsPage() {
   const [view, setView] = useState<ViewMode>("table");
   const { showToast } = useToast();
 
+  async function fetchDatasets(): Promise<DatasetWithHealth[]> {
+    const list = await listDatasets();
+    return Promise.all(
+      list.map(async (d) => {
+        const health = await getDatasetHealth(d.dataset_id);
+        return { ...d, health_score: health?.health_score ?? null };
+      })
+    );
+  }
+
   async function load() {
     setLoading(true);
     setError(false);
     try {
-      const list = await listDatasets();
-      const withHealth = await Promise.all(
-        list.map(async (d) => {
-          const health = await getDatasetHealth(d.dataset_id);
-          return { ...d, health_score: health?.health_score ?? null };
-        })
-      );
-      setDatasets(withHealth);
+      setDatasets(await fetchDatasets());
     } catch {
       setError(true);
     } finally {
@@ -47,7 +50,20 @@ export default function DatasetsPage() {
   }
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+    fetchDatasets()
+      .then((data) => {
+        if (!cancelled) setDatasets(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {

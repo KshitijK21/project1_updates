@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import { FileText, Presentation, Sparkles, Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Select from "@/components/ui/Select";
 import Skeleton from "@/components/ui/Skeleton";
+import { PageSkeleton } from "@/components/ui/Skeletons";
 import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
+import Select from "@/components/ui/Select";
 import { listDatasets } from "@/lib/api/datasets";
 import { getRecommendations, getExecutiveSummary, downloadPdf, downloadPpt } from "@/lib/api/report";
+import { useToast } from "@/components/ui/Toast";
+import { isAxiosError } from "axios";
 
 export default function ReportsPage() {
   const [datasets, setDatasets] = useState<{ dataset_id: string; filename: string }[]>([]);
@@ -21,6 +24,7 @@ export default function ReportsPage() {
   const [error, setError] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pptBusy, setPptBusy] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -38,6 +42,7 @@ export default function ReportsPage() {
   async function selectDataset(id: string) {
     setSelectedId(id);
     setLoading(true);
+    setError(false);
     setRecommendations([]);
     setExecutiveSummary("");
     try {
@@ -68,25 +73,25 @@ export default function ReportsPage() {
       a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
-      // silently fail — user will see no download
+      showToast(`${fmt.toUpperCase()} report downloaded`, "success");
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        showToast(fmt === "pdf" ? "PDF not generated yet." : "PPT not generated yet.", "error");
+      } else {
+        showToast("Download failed. Please try again.", "error");
+      }
     } finally {
       setBusy(false);
     }
   }
 
   if (loadingDatasets) {
-    return (
-      <div className="p-6 max-w-5xl mx-auto space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (error && !loading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="page-shell">
         <ErrorState message="Unable to load report data." />
       </div>
     );
@@ -94,7 +99,7 @@ export default function ReportsPage() {
 
   if (datasets.length === 0) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="page-shell">
         <EmptyState
           icon={FileText}
           title="No datasets available"
@@ -105,19 +110,31 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="page-shell">
+      <div className="page-header">
         <div>
-          <h1 className="font-display text-xl font-semibold text-text-primary">Report</h1>
-          <p className="text-sm text-text-muted mt-1">Executive summary, recommendations, and exportable reports.</p>
+          <h1 className="page-title">Report</h1>
+          <p className="page-subtitle">
+            Executive summary, recommendations, and exportable reports.
+          </p>
         </div>
         {selectedId && (
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => handleDownload("pdf")} loading={pdfBusy} disabled={loading || pdfBusy}>
+            <Button
+              variant="secondary"
+              onClick={() => handleDownload("pdf")}
+              loading={pdfBusy}
+              disabled={loading || pdfBusy}
+            >
               {!pdfBusy && <FileText className="h-4 w-4" />}
               PDF
             </Button>
-            <Button variant="secondary" onClick={() => handleDownload("ppt")} loading={pptBusy} disabled={loading || pptBusy}>
+            <Button
+              variant="secondary"
+              onClick={() => handleDownload("ppt")}
+              loading={pptBusy}
+              disabled={loading || pptBusy}
+            >
               {!pptBusy && <Presentation className="h-4 w-4" />}
               PPT
             </Button>
@@ -136,14 +153,19 @@ export default function ReportsPage() {
 
       {loading && (
         <div className="space-y-4">
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
+          <div className="rounded-[var(--radius-md)] border border-border bg-surface p-5 shadow-sm">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="mt-4 h-16 w-full" />
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-border bg-surface p-5 shadow-sm">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="mt-4 h-16 w-full" />
+          </div>
         </div>
       )}
 
       {!loading && selectedId && (
         <>
-          {/* Executive Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -162,7 +184,6 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
-          {/* Recommendations */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
