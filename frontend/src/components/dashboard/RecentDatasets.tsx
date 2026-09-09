@@ -45,8 +45,8 @@ export default function RecentDatasets({
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="px-5 py-4">
-              <div className="animate-pulse rounded-md bg-surface-raised h-4 w-40" />
-              <div className="animate-pulse rounded-md bg-surface-raised h-3 w-24 mt-2" />
+              <div className="animate-pulse rounded-[var(--radius-sm)] bg-surface-raised h-4 w-40" />
+              <div className="animate-pulse rounded-[var(--radius-sm)] bg-surface-raised h-3 w-24 mt-2" />
             </div>
           ))
         ) : datasets.length === 0 ? (

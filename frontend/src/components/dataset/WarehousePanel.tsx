@@ -94,7 +94,7 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="rounded-md bg-signal/10 p-2">
+          <div className="rounded-[var(--radius-sm)] bg-signal/10 p-2">
             <Database className="h-4 w-4 text-signal" />
           </div>
           <div>
@@ -118,16 +118,16 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
           <CardTitle>Schema Diagram</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-border bg-bg p-6">
+          <div className="rounded-[var(--radius-md)] border border-border bg-bg p-6">
             <div className="text-center">
-              <div className="inline-block rounded-md bg-surface-raised border border-signal/40 px-4 py-3 min-w-[220px]">
+              <div className="inline-block rounded-[var(--radius-sm)] bg-surface-raised border border-signal/40 px-4 py-3 min-w-[220px]">
                 <p className="text-xs uppercase tracking-wide text-signal font-medium">Fact Table</p>
                 <p className="font-data text-sm text-text-primary mt-1">{warehouse.fact_table_name}</p>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
               {warehouse.measures.length > 0 && (
-                <div className="rounded-md bg-surface-raised border border-positive/30 p-3">
+                <div className="rounded-[var(--radius-sm)] bg-surface-raised border border-positive/30 p-3">
                   <p className="text-[10px] uppercase tracking-wider text-positive font-medium mb-2">Measures</p>
                   <div className="space-y-1.5">
                     {warehouse.measures.map((m) => (
@@ -140,7 +140,7 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
                 </div>
               )}
               {warehouse.dimensions.map((dim) => (
-                <div key={dim.column} className="rounded-md bg-surface-raised border border-info/30 p-3">
+                <div key={dim.column} className="rounded-[var(--radius-sm)] bg-surface-raised border border-info/30 p-3">
                   <p className="text-[10px] uppercase tracking-wider text-info font-medium mb-2">
                     Dim · {dim.column}
                   </p>
@@ -165,7 +165,7 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search columns..."
-              className="h-8 pl-8 pr-3 text-sm rounded-md bg-bg border border-border-strong focus:outline-none focus:border-signal w-48"
+              className="h-8 pl-8 pr-3 text-sm rounded-[var(--radius-sm)] bg-bg border border-border-strong focus:outline-none focus:border-signal w-48"
             />
           </div>
         </CardHeader>
@@ -211,7 +211,7 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
         </CardContent>
       </Card>
 
-      <div className="flex items-start gap-2 rounded-md bg-surface-raised border border-border px-4 py-3">
+      <div className="flex items-start gap-2 rounded-[var(--radius-sm)] bg-surface-raised border border-border px-4 py-3">
         <Info className="h-4 w-4 text-signal mt-0.5 shrink-0" />
         <p className="text-xs text-text-muted">
           The fact table has been loaded into PostgreSQL. Use it for natural-language queries,

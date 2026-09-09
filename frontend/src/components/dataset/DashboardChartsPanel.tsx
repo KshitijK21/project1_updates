@@ -146,7 +146,7 @@ export default function DashboardChartsPanel({
               />
             </div>
             <div className="mt-3 flex items-center gap-2">
-              <div className="flex rounded-md border border-border overflow-hidden">
+              <div className="flex rounded-[var(--radius-sm)] border border-border overflow-hidden">
                 {(["bar", "pie"] as const).map((mode) => (
                   <button
                     key={mode}
@@ -212,7 +212,7 @@ export default function DashboardChartsPanel({
           <div className="space-y-4">
             <p className="text-xs text-text-muted font-data">{drill.rows.length} row(s)</p>
             {drill.rows.length > 0 ? (
-              <div className="overflow-x-auto rounded-md border border-border">
+              <div className="overflow-x-auto rounded-[var(--radius-sm)] border border-border">
                 <table className="w-full text-xs font-data">
                   <thead className="bg-surface-raised">
                     <tr>

@@ -115,7 +115,7 @@ export default function CleaningPanel({ datasetId }: { datasetId: string }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <div className="rounded-md bg-signal/10 p-2">
+          <div className="rounded-[var(--radius-sm)] bg-signal/10 p-2">
             <Wand2 className="h-4 w-4 text-signal" />
           </div>
           <div>
@@ -194,7 +194,7 @@ export default function CleaningPanel({ datasetId }: { datasetId: string }) {
         </CardContent>
       </Card>
 
-      <div className="flex items-start gap-2 rounded-md bg-surface-raised border border-border px-4 py-3">
+      <div className="flex items-start gap-2 rounded-[var(--radius-sm)] bg-surface-raised border border-border px-4 py-3">
         <Sparkles className="h-4 w-4 text-signal mt-0.5 shrink-0" />
         <p className="text-xs text-text-muted">
           Applied operations modify the uploaded file in place, then regenerate row/column

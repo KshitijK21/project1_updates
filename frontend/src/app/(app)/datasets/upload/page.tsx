@@ -139,7 +139,7 @@ export default function UploadDatasetPage() {
             {!uploading && (
               <button
                 onClick={() => setFile(null)}
-                className="rounded-md p-1.5 text-text-muted hover:text-negative hover:bg-negative/10 transition-colors"
+                className="rounded-[var(--radius-sm)] p-1.5 text-text-muted hover:text-negative hover:bg-negative/10 transition-colors"
                 aria-label="Remove selected file"
               >
                 <X className="h-4 w-4" />

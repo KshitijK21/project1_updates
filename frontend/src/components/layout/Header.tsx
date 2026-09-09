@@ -59,7 +59,7 @@ export default function Header({
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-text-secondary hover:text-text-primary p-1.5 -ml-1.5 rounded-md hover:bg-surface-raised transition-colors"
+          className="lg:hidden text-text-secondary hover:text-text-primary p-1.5 -ml-1.5 rounded-[var(--radius-sm)] hover:bg-surface-raised transition-colors"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />

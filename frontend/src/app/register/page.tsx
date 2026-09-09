@@ -67,7 +67,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-signal/10 border border-signal/30 mb-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] bg-signal/10 border border-signal/30 mb-3">
             <Activity className="h-5 w-5 text-signal" />
           </div>
           <h1 className="font-display font-semibold text-lg text-text-primary">

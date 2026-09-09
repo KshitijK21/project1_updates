@@ -75,7 +75,7 @@ export default function Sidebar({
           {showLabels && onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="hidden lg:flex items-center justify-center h-7 w-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
+              className="hidden lg:flex items-center justify-center h-7 w-7 rounded-[var(--radius-sm)] text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
               aria-label="Collapse sidebar"
             >
               <ChevronsLeft className="h-4 w-4" />

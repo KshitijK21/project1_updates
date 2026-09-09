@@ -93,7 +93,7 @@ export default function AnomalyRootCausePanel({
                 min="0.5"
                 value={threshold}
                 onChange={(e) => setThreshold(Number(e.target.value))}
-                className="w-full h-10 px-3 text-sm rounded-md bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-signal/40"
+                className="w-full h-10 px-3 text-sm rounded-[var(--radius-sm)] bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-signal/40"
               />
             </div>
           </div>
