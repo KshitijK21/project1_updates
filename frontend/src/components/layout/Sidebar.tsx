@@ -28,6 +28,8 @@ export default function Sidebar({
     }))
     .filter((group) => group.items.length > 0);
 
+  const showLabels = !collapsed || mobileOpen;
+
   return (
     <>
       {mobileOpen && (
@@ -63,14 +65,14 @@ export default function Sidebar({
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-signal/10 border border-signal/30">
               <Activity className="h-4 w-4 text-signal" />
             </div>
-            {!collapsed && (
+            {showLabels && (
               <span className="font-display font-semibold text-sm tracking-wide text-text-primary whitespace-nowrap">
                 AUTONOMOUS BI
               </span>
             )}
           </div>
 
-          {!collapsed && onToggleCollapse && (
+          {showLabels && onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
               className="hidden lg:flex items-center justify-center h-7 w-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
@@ -85,7 +87,7 @@ export default function Sidebar({
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
           {visibleGroups.map((group) => (
             <div key={group.label}>
-              {!collapsed && (
+              {showLabels && (
                 <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
                   {group.label}
                 </p>
@@ -102,10 +104,10 @@ export default function Sidebar({
                       <Link
                         href={item.href}
                         onClick={onCloseMobile}
-                        title={collapsed ? item.label : undefined}
+                        title={!showLabels ? item.label : undefined}
                         className={cn(
                           "flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm transition-all duration-150",
-                          collapsed && "justify-center px-2",
+                          !showLabels && "justify-center px-2",
                           active
                             ? "bg-signal-soft text-signal font-medium"
                             : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
@@ -115,7 +117,7 @@ export default function Sidebar({
                           className={cn("h-4 w-4 shrink-0", active && "text-signal")}
                           aria-hidden="true"
                         />
-                        {!collapsed && <span className="truncate">{item.label}</span>}
+                        {showLabels && <span className="truncate">{item.label}</span>}
                       </Link>
                     </li>
                   );
@@ -129,11 +131,11 @@ export default function Sidebar({
         <div
           className={cn(
             "px-5 py-4 border-t border-border",
-            collapsed && "px-0 text-center"
+            !showLabels && "px-0 text-center"
           )}
         >
           <p className="text-xs text-text-muted font-data">
-            {collapsed ? "v1.0" : "v1.0.0 · Platform"}
+            {showLabels ? "v1.0.0 · Platform" : "v1.0"}
           </p>
         </div>
       </aside>
