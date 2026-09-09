@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Activity, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Activity } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { registerRequest } from "@/lib/api/auth";
@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-surface border border-border rounded-lg p-6 space-y-4"
+          className="bg-surface border border-border rounded-[var(--radius-lg)] shadow-sm p-6 space-y-4"
         >
           <Input
             label="Email"
@@ -104,8 +104,8 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-[34px] text-text-muted hover:text-text-primary"
-                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 top-[34px] p-1 rounded-[var(--radius-sm)] text-text-muted hover:text-text-primary transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           />
 
           {error && (
-            <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-md px-3 py-2">
+            <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-[var(--radius-sm)] px-3 py-2">
               {error}
             </p>
           )}

@@ -7,7 +7,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm text-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-signal/10 border border-signal/30 mb-4 mx-auto">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] bg-signal/10 border border-signal/30 mb-4 mx-auto">
           <Mail className="h-5 w-5 text-signal" />
         </div>
         <h1 className="font-display font-semibold text-lg text-text-primary">

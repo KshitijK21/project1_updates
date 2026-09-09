@@ -58,7 +58,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-surface border border-border rounded-lg p-6 space-y-4"
+          className="bg-surface border border-border rounded-[var(--radius-lg)] shadow-sm p-6 space-y-4"
         >
           <Input
             label="Email"
@@ -84,15 +84,15 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-[34px] text-text-muted hover:text-text-primary"
-              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-[34px] p-1 rounded-[var(--radius-sm)] text-text-muted hover:text-text-primary transition-colors"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
 
           {error && (
-            <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-md px-3 py-2">
+            <p className="text-sm text-negative bg-negative/10 border border-negative/30 rounded-[var(--radius-sm)] px-3 py-2">
               {error}
             </p>
           )}
