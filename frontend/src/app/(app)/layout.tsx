@@ -3,7 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
-import Spinner from "@/components/ui/Spinner";
+import BrandSplash from "@/components/layout/BrandSplash";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
@@ -19,7 +19,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-bg">
-        <Spinner label="Loading..." />
+        <BrandSplash label="Initializing workspace…" />
       </div>
     );
   }

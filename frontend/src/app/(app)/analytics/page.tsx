@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="page-shell !max-w-5xl !flex-nowrap h-[calc(100vh-4rem)] !mb-0 !pb-0">
+    <div className="page-shell !max-w-5xl h-[calc(100vh-4rem)]">
       <div>
         <h1 className="page-title">Analytics</h1>
         <p className="page-subtitle">
