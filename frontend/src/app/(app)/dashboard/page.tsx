@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Database, Activity, Upload, MessageSquareText, FileText, ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
-import Skeleton from "@/components/ui/Skeleton";
-import EmptyState from "@/components/ui/EmptyState";
+import {
+  Database,
+  Activity,
+  Upload,
+  MessageSquareText,
+  Columns3,
+  FileText,
+} from "lucide-react";
+import MetricCard from "@/components/dashboard/MetricCard";
+import QuickActions from "@/components/dashboard/QuickActions";
+import RecentDatasets from "@/components/dashboard/RecentDatasets";
+import { MetricCardSkeleton } from "@/components/ui/Skeletons";
 import ErrorState from "@/components/ui/ErrorState";
+import Button from "@/components/ui/Button";
 import { listDatasets } from "@/lib/api/datasets";
 import { getDatasetHealth } from "@/lib/api/profiling";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,167 +71,103 @@ export default function DashboardPage() {
         )
       : null;
   const totalRows = datasets.reduce((sum, d) => sum + d.rows, 0);
+  const totalColumns = datasets.reduce((sum, d) => sum + d.columns, 0);
   const recentDatasets = datasets.slice(0, 5);
 
   const quickActions = [
-    { label: "Upload dataset", href: "/datasets/upload", icon: Upload },
-    { label: "Ask a question", href: "/analytics", icon: MessageSquareText },
-    { label: "View reports", href: "/reports", icon: FileText },
+    {
+      label: "Upload dataset",
+      description: "Add a CSV or Excel file",
+      href: "/datasets/upload",
+      icon: Upload,
+    },
+    {
+      label: "Ask a question",
+      description: "Query your data with AI",
+      href: "/analytics",
+      icon: MessageSquareText,
+    },
+    {
+      label: "View reports",
+      description: "Export summaries and decks",
+      href: "/reports",
+      icon: FileText,
+    },
   ];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="font-display text-xl font-semibold text-text-primary">
-          {getGreeting()}{email ? `, ${email.split("@")[0]}` : ""}
-        </h1>
-        <p className="text-sm text-text-muted mt-1">
-          Here&apos;s what&apos;s happening across your data.
-        </p>
+    <div className="page-shell">
+      {/* Page header */}
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">
+            {getGreeting()}
+            {email ? `, ${email.split("@")[0]}` : ""}
+          </h1>
+          <p className="page-subtitle">
+            Here&apos;s what&apos;s happening across your data workspace.
+          </p>
+        </div>
+        <Link href="/datasets/upload">
+          <Button size="lg">
+            <Upload className="h-4 w-4" />
+            Upload dataset
+          </Button>
+        </Link>
       </div>
 
       {error ? (
         <ErrorState message="Unable to load dashboard data." onRetry={loadData} />
       ) : (
         <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wide">Datasets</p>
-                  {loading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
-                  ) : (
-                    <p className="font-data text-2xl font-semibold text-text-primary mt-1">
-                      {totalDatasets}
-                    </p>
-                  )}
-                </div>
-                <div className="rounded-full bg-signal/10 p-2.5">
-                  <Database className="h-5 w-5 text-signal" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wide">Avg. Data Health</p>
-                  {loading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
-                  ) : (
-                    <p className="font-data text-2xl font-semibold text-text-primary mt-1">
-                      {avgHealth !== null ? `${avgHealth}` : "—"}
-                    </p>
-                  )}
-                </div>
-                <div className="rounded-full bg-positive/10 p-2.5">
-                  <Activity className="h-5 w-5 text-positive" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wide">Total Rows Analyzed</p>
-                  {loading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
-                  ) : (
-                    <p className="font-data text-2xl font-semibold text-text-primary mt-1">
-                      {totalRows.toLocaleString()}
-                    </p>
-                  )}
-                </div>
-                <div className="rounded-full bg-info/10 p-2.5">
-                  <FileText className="h-5 w-5 text-info" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-3">
-            {quickActions.map((action) => (
-              <Link key={action.href} href={action.href}>
-                <Button variant="secondary" size="sm">
-                  <action.icon className="h-4 w-4" />
-                  {action.label}
-                </Button>
-              </Link>
-            ))}
-          </div>
-
-          {/* Recent Datasets */}
-          <Card>
-            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-display font-semibold text-sm text-text-primary">
-                Recent Datasets
-              </h3>
-              <Link
-                href="/datasets"
-                className="text-xs text-signal hover:underline flex items-center gap-1"
-              >
-                View all <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <CardContent className="p-0">
-              {loading ? (
-                <div className="p-5 space-y-3">
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                </div>
-              ) : recentDatasets.length === 0 ? (
-                <EmptyState
+          {/* KPI grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {loading ? (
+              <>
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+              </>
+            ) : (
+              <>
+                <MetricCard
+                  label="Total datasets"
+                  value={totalDatasets}
                   icon={Database}
-                  title="No datasets yet"
-                  description="Upload your first dataset to get started."
-                  action={
-                    <Link href="/datasets/upload">
-                      <Button size="sm">
-                        <Upload className="h-4 w-4" />
-                        Upload dataset
-                      </Button>
-                    </Link>
-                  }
+                  accent="signal"
+                  supporting={`${scoredDatasets.length} profiled`}
                 />
-              ) : (
-                <div className="divide-y divide-border">
-                  {recentDatasets.map((d) => (
-                    <Link
-                      key={d.dataset_id}
-                      href={`/datasets/${d.dataset_id}`}
-                      className="flex items-center justify-between px-5 py-3 hover:bg-surface-raised transition-colors"
-                    >
-                      <div>
-                        <p className="text-sm text-text-primary font-medium">{d.filename}</p>
-                        <p className="text-xs text-text-muted font-data mt-0.5">
-                          {d.rows.toLocaleString()} rows · {d.columns} columns
-                        </p>
-                      </div>
-                      {d.health_score !== null ? (
-                        <Badge
-                          variant={
-                            d.health_score >= 80
-                              ? "positive"
-                              : d.health_score >= 60
-                              ? "signal"
-                              : "negative"
-                          }
-                        >
-                          Health {Math.round(d.health_score)}
-                        </Badge>
-                      ) : (
-                        <Badge variant="default">Not profiled</Badge>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                <MetricCard
+                  label="Avg. data health"
+                  value={avgHealth !== null ? `${avgHealth}%` : null}
+                  icon={Activity}
+                  accent="positive"
+                  supporting={avgHealth !== null ? "Across profiled datasets" : "Run profiling to score"}
+                />
+                <MetricCard
+                  label="Total records"
+                  value={totalRows.toLocaleString()}
+                  icon={Columns3}
+                  accent="info"
+                  supporting="Across all datasets"
+                />
+                <MetricCard
+                  label="Columns analyzed"
+                  value={totalColumns.toLocaleString()}
+                  icon={Database}
+                  accent="signal"
+                  supporting="Combined schema width"
+                />
+              </>
+            )}
+          </div>
+
+          {/* Quick actions */}
+          <QuickActions actions={quickActions} />
+
+          {/* Recent datasets */}
+          <RecentDatasets datasets={recentDatasets} loading={loading} />
         </>
       )}
     </div>
