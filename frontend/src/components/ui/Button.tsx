@@ -10,9 +10,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    "bg-signal text-[#14110a] hover:bg-[#f0ac4c] font-medium shadow-sm shadow-signal/20 hover:shadow-md hover:shadow-signal/25",
+    "bg-signal text-zinc-950 hover:bg-[#34d399] font-semibold shadow-sm shadow-signal/20 hover:shadow-md hover:shadow-signal/25",
   secondary:
-    "bg-surface-raised text-text-primary border border-border-strong hover:border-signal-dim hover:bg-[#1f2529]",
+    "bg-surface-raised text-text-primary border border-border-strong hover:border-signal-dim hover:bg-[#333338]",
   ghost: "bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-raised",
   danger: "bg-negative/10 text-negative border border-negative/30 hover:bg-negative/20",
 };
@@ -33,7 +33,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-[var(--radius-sm)] transition-all duration-150",
+          "inline-flex items-center justify-center rounded-[var(--radius-md)] transition-all duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:scale-[0.98]",
           variantStyles[variant],

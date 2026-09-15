@@ -22,7 +22,7 @@ export default function BarChart({
   data,
   dataKey = "value",
   xKey = "label",
-  color = "#e9a23b",
+  color = "#10b981",
   height = 260,
 }: {
   data: ChartDatum[];
@@ -38,7 +38,7 @@ export default function BarChart({
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
           <XAxis dataKey={xKey} tick={AXIS_STYLE} axisLine={false} tickLine={false} interval={0} angle={-20} textAnchor="end" height={60} />
           <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={52} />
-          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgba(233,162,59,0.08)" }} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgba(16,185,129,0.08)" }} />
           <Bar dataKey={dataKey} radius={[4, 4, 0, 0]}>
             {data.map((_, i) => (
               <Cell key={i} fill={color} fillOpacity={0.9} />

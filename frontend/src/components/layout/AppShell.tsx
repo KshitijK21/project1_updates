@@ -9,7 +9,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-bg">
+    <div className="flex h-screen overflow-hidden bg-bg relative">
+      <div
+        className="glow-blob top-[-160px] right-[-120px] h-[420px] w-[420px] bg-signal/40"
+        aria-hidden="true"
+      />
+      <div
+        className="glow-blob bottom-[-180px] left-[-120px] h-[480px] w-[480px] bg-info/30"
+        aria-hidden="true"
+      />
       <Sidebar
         mobileOpen={mobileNavOpen}
         onCloseMobile={() => setMobileNavOpen(false)}

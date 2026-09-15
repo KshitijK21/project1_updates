@@ -214,15 +214,15 @@ export default function ForecastsPage() {
 
           <ChartCard
             title={`${forecast.measure} — Forecast`}
-            subtitle="Historical (amber) vs predicted (green)"
+            subtitle="Historical (zinc) vs predicted (green)"
             empty={chartData.length === 0}
           >
             <LineChart
               data={chartData}
               xKey="date"
               series={[
-                { dataKey: "actual", name: "Historical", color: "#e9a23b" },
-                { dataKey: "forecast", name: "Forecast", color: "#34c98e" },
+                { dataKey: "actual", name: "Historical", color: "#71717a" },
+                { dataKey: "forecast", name: "Forecast", color: "#10b981" },
               ]}
               height={320}
             />

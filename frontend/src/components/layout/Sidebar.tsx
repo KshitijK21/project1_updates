@@ -42,7 +42,7 @@ export default function Sidebar({
 
       <aside
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 h-full shrink-0 border-r border-border bg-surface",
+          "fixed lg:static inset-y-0 left-0 z-50 h-full shrink-0 border-r border-border glass",
           "flex flex-col transition-all duration-200 ease-out lg:translate-x-0",
           collapsed ? "lg:w-[68px]" : "lg:w-64",
           mobileOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full"

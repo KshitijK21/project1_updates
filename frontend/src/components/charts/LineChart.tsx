@@ -44,7 +44,7 @@ export default function LineChart({
               type="monotone"
               dataKey={s.dataKey}
               name={s.name ?? s.dataKey}
-              stroke={s.color ?? "#e9a23b"}
+              stroke={s.color ?? "#10b981"}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4 }}

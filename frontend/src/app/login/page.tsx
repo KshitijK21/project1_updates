@@ -44,10 +44,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4 relative overflow-hidden">
+      <div className="glow-blob top-[-120px] left-1/2 -translate-x-1/2 h-[380px] w-[520px] bg-signal/30" aria-hidden="true" />
+      <div className="glow-blob bottom-[-160px] right-[-80px] h-[360px] w-[360px] bg-info/25" aria-hidden="true" />
+      <div className="w-full max-w-sm relative">
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] bg-signal/10 border border-signal/30 mb-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-signal/15 border border-signal/30 mb-3 shadow-[var(--shadow-glow-emerald)]">
             <Activity className="h-5 w-5 text-signal" />
           </div>
           <h1 className="font-display font-semibold text-lg text-text-primary">
@@ -58,7 +60,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-surface border border-border rounded-[var(--radius-lg)] shadow-sm p-6 space-y-4"
+          className="glass border border-border rounded-[var(--radius-lg)] shadow-[var(--shadow-glow)] p-6 space-y-4"
         >
           <Input
             label="Email"

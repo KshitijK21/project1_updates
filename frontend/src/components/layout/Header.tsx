@@ -55,7 +55,7 @@ export default function Header({
   const title = getPageTitle(pathname);
 
   return (
-    <header className="h-16 border-b border-border bg-surface flex items-center justify-between px-4 lg:px-6 shrink-0">
+    <header className="h-16 border-b border-border glass flex items-center justify-between px-4 lg:px-6 shrink-0">
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onMenuClick}

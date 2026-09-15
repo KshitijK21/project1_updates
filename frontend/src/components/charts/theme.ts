@@ -1,11 +1,11 @@
-export const CHART_COLORS = ["#e9a23b", "#5b9bd5", "#34c98e", "#e2596b", "#b17d2e", "#8da0bb", "#7bc4a4", "#c77a86"];
+export const CHART_COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#06b6d4", "#84cc16", "#ec4899"];
 
-export const AXIS_STYLE = { fill: "#9aa4ad", fontSize: 11 };
-export const GRID_STROKE = "#262c31";
+export const AXIS_STYLE = { fill: "#71717a", fontSize: 11 };
+export const GRID_STROKE = "#3f3f46";
 export const TOOLTIP_STYLE = {
-  background: "#1b2024",
-  border: "1px solid #333b42",
-  borderRadius: 6,
-  color: "#e9ecef",
+  background: "#27272a",
+  border: "1px solid #52525b",
+  borderRadius: 8,
+  color: "#fafafa",
   fontSize: 12,
 };
