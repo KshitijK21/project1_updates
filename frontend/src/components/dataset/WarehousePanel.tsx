@@ -9,9 +9,11 @@ import Button from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
 import { getWarehouse, generateWarehouse } from "@/lib/api/warehouse";
 import { WarehouseData, DataDictionaryEntry } from "@/types/warehouse";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/utils/cn";
 
 export default function WarehousePanel({ datasetId }: { datasetId: string }) {
+  const { showToast } = useToast();
   const [warehouse, setWarehouse] = useState<WarehouseData | null>(null);
   const [notGenerated, setNotGenerated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -45,8 +47,10 @@ export default function WarehousePanel({ datasetId }: { datasetId: string }) {
       const data = await generateWarehouse(datasetId);
       setWarehouse(data);
       setNotGenerated(false);
+      showToast("Warehouse schema created", "success");
     } catch {
       setError(true);
+      showToast("Warehouse generation failed.", "error");
     } finally {
       setGenerating(false);
     }

@@ -13,6 +13,7 @@ import { listDatasets } from "@/lib/api/datasets";
 import { generateWarehouse, getWarehouse } from "@/lib/api/warehouse";
 import { queryDataset } from "@/lib/api/ai";
 import { AiQueryResult } from "@/types/ai";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/utils/cn";
 
 interface Entry {
@@ -30,6 +31,7 @@ const SUGGESTIONS = [
 ];
 
 export default function AnalyticsPage() {
+  const { showToast } = useToast();
   const [datasets, setDatasets] = useState<{ dataset_id: string; filename: string }[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [columnsReady, setColumnsReady] = useState(false);
@@ -95,6 +97,7 @@ export default function AnalyticsPage() {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
         "Query failed. Ensure the warehouse was generated first.";
+      showToast("Query failed. Check the error in the conversation for details.", "error");
       setEntries((prev) => prev.map((e) => (e.id === loadEntry.id ? { ...e, loading: false, error: detail } : e)));
     } finally {
       setBusy(false);

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, Upload, Database, LayoutGrid, Rows3 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
 import { TableSkeleton, DatasetSkeleton } from "@/components/ui/Skeletons";
 import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
@@ -23,9 +24,16 @@ export default function DatasetsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; filename: string } | null>(null);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [view, setView] = useState<ViewMode>("table");
   const { showToast } = useToast();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   async function fetchDatasets(): Promise<DatasetWithHealth[]> {
     const list = await listDatasets();
@@ -67,23 +75,17 @@ export default function DatasetsPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     if (!q) return datasets;
     return datasets.filter(
       (d) =>
         d.filename.toLowerCase().includes(q) || d.status.toLowerCase().includes(q)
     );
-  }, [datasets, query]);
+  }, [datasets, debouncedQuery]);
 
   async function handleDelete(id: string, filename: string) {
-    if (
-      !window.confirm(
-        `Delete "${filename}"? This will permanently remove the dataset and all related analysis.`
-      )
-    ) {
-      return;
-    }
     setDeleting(id);
+    setPendingDelete(null);
     try {
       await deleteDataset(id);
       showToast(`"${filename}" deleted`, "success");
@@ -196,7 +198,7 @@ export default function DatasetsPage() {
               deleting={deleting}
               onDelete={(id) => {
                 const d = datasets.find((x) => x.dataset_id === id);
-                if (d) handleDelete(id, d.filename);
+                if (d) setPendingDelete({ id: d.dataset_id, filename: d.filename });
               }}
             />
           ) : (
@@ -206,13 +208,38 @@ export default function DatasetsPage() {
                   key={d.dataset_id}
                   dataset={d}
                   deleting={deleting === d.dataset_id}
-                  onDelete={() => handleDelete(d.dataset_id, d.filename)}
+                  onDelete={() => setPendingDelete({ id: d.dataset_id, filename: d.filename })}
                 />
               ))}
             </div>
           )}
         </>
       )}
+
+      <Modal
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        title="Delete Dataset"
+        size="sm"
+      >
+        <p className="text-sm text-text-muted">
+          Are you sure you want to delete{" "}
+          <span className="text-text-primary font-medium">{pendingDelete?.filename}</span>?
+          This removes the warehouse, profiling data, and reports. This cannot be undone.
+        </p>
+        <div className="flex justify-end gap-2 mt-6">
+          <Button variant="secondary" onClick={() => setPendingDelete(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            loading={!!deleting}
+            onClick={() => pendingDelete && handleDelete(pendingDelete.id, pendingDelete.filename)}
+          >
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

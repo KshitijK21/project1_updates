@@ -50,6 +50,7 @@ def apply_selected_cleaning(payload: ApplyCleaningRequest,
     return {
         "dataset_id": str(dataset.id),
         "operations_applied": applied["operations"],
+        "skipped": applied["skipped"],
         "rows_before": applied["rows_before"],
         "rows_after": applied["rows_after"],
         "rows_removed": applied["rows_before"] - applied["rows_after"]

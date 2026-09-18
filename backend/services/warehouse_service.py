@@ -1,9 +1,22 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import re
 
 
+def build_fact_table_name(dataset_name: str, dataset_id: str | None = None) -> str:
+    """Build a unique, DB-safe fact table name.
 
-def generate_star_schema(df: pd.DataFrame, dataset_name: str) -> dict:
+    Derived from the dataset filename (so humans can read it), with the first
+    bytes of the dataset UUID appended so datasets with identical names never
+    collide or clobber each other's tables.
+    """
+    slug = re.sub(r"\W+", "_", dataset_name.lower())
+    slug = re.sub(r"^_+|_+$", "", slug)[:40]
+    suffix = dataset_id[:8] if dataset_id else "d"
+    return f"fact_{slug}_{suffix}"
+
+
+def generate_star_schema(df: pd.DataFrame, dataset_name: str, dataset_id: str | None = None) -> dict:
     measures = []
     dimensions = []
     data_dictionary = []
@@ -13,8 +26,10 @@ def generate_star_schema(df: pd.DataFrame, dataset_name: str) -> dict:
         unique_count = df[col].nunique()
         null_count = int(df[col].isnull().sum())
 
-        # Numeric columns with high cardinality → treated as measures
-        if dtype in ["int64", "float64"] and unique_count > 10:
+        # Numeric columns with more than one distinct value are measures.
+        # (A <=10 unique-value threshold silently zeroed out measures on small
+        #  or sample datasets, which broke the analytics/AI SQL generation.)
+        if dtype in ["int64", "float64", "Int64", "Float64"] and unique_count > 1:
             measures.append({
                 "column": col,
                 "type": dtype,
@@ -22,7 +37,7 @@ def generate_star_schema(df: pd.DataFrame, dataset_name: str) -> dict:
             })
             role = "measure"
 
-        # Everything else (categorical, low-cardinality numeric, dates) → dimension
+        # Everything else (categorical, constant, dates) → dimension
         else:
             dim_table_name = f"dim_{col.lower().replace(' ', '_')}"
             dimensions.append({
@@ -40,7 +55,7 @@ def generate_star_schema(df: pd.DataFrame, dataset_name: str) -> dict:
             "distinct_values": int(unique_count)
         })
 
-    fact_table_name = f"fact_{dataset_name.lower().replace('.csv', '').replace(' ', '_')}"
+    fact_table_name = build_fact_table_name(dataset_name, dataset_id)
 
     return {
         "fact_table_name": fact_table_name,

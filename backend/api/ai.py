@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from pydantic import BaseModel
 import logging
 import re
 
@@ -13,6 +14,10 @@ from services.rbac_service import get_current_user, get_owned_dataset
 router = APIRouter(prefix="/ai", tags=["AI Analytics"])
 
 FORBIDDEN_KEYWORDS = ["insert", "update", "delete", "drop", "alter", "truncate", "create"]
+
+
+class AIQueryRequest(BaseModel):
+    question: str
 
 
 def fix_sql_case(sql: str, real_columns) -> str:
@@ -38,8 +43,11 @@ def fix_sql_case(sql: str, real_columns) -> str:
 
 
 @router.post("/{dataset_id}/query")
-def natural_language_query(dataset: Dataset = Depends(get_owned_dataset), question: str = "",
-                           db: Session = Depends(get_db), user=Depends(get_current_user)):
+def natural_language_query(dataset: Dataset = Depends(get_owned_dataset), request: AIQueryRequest = None,
+                           question: str = "", db: Session = Depends(get_db), user=Depends(get_current_user)):
+    # Accept the question either as a JSON body or as a query parameter.
+    if request is not None and request.question.strip():
+        question = request.question
     if not question.strip():
         raise HTTPException(status_code=400, detail="Question is required")
 

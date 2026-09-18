@@ -78,10 +78,12 @@ def apply_cleaning(df: pd.DataFrame, suggestion_ids: list) -> dict:
     result = df.copy()
     rows_before = len(result)
     operations = []
+    skipped = []
     available = get_available_suggestion_ids(result)
 
     for sid in suggestion_ids:
         if sid not in available:
+            skipped.append(sid)
             continue
 
         if sid == "duplicate_rows":
@@ -119,6 +121,7 @@ def apply_cleaning(df: pd.DataFrame, suggestion_ids: list) -> dict:
     return {
         "dataframe": result,
         "operations": operations,
+        "skipped": skipped,
         "rows_before": rows_before,
         "rows_after": rows_after,
     }

@@ -1,16 +1,20 @@
 from fastapi import FastAPI
-from database.db import Base, engine
-from models import dataset, data_profile, warehouse, user, audit_log
-from api import dataset as dataset_router, profiling, cleaning, warehouse as warehouse_router, ai, dashboard, predictive, auth, audit, report
 from fastapi.middleware.cors import CORSMiddleware
-Base.metadata.create_all(bind=engine)
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# Schema is managed by Alembic. Run "alembic upgrade head" from backend/
+# before starting this service (docker-compose does this automatically).
+from api import dataset as dataset_router, profiling, cleaning, warehouse as warehouse_router, ai, dashboard, predictive, auth, audit, report
 
 app = FastAPI(title="Autonomous Business Intelligence Platform", version="1.0.0")
 
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[origin.strip() for origin in cors_origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

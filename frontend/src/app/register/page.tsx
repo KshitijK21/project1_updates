@@ -13,8 +13,11 @@ import { isAxiosError } from "axios";
 
 function getPasswordStrength(password: string): { label: string; className: string } {
   if (password.length === 0) return { label: "", className: "" };
-  if (password.length < 6) return { label: "Too short", className: "text-negative" };
-  if (password.length < 10) return { label: "Okay", className: "text-signal" };
+  if (password.length < 8) return { label: "Too short", className: "text-negative" };
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  if (!(hasUpper && hasLower && hasDigit)) return { label: "Needs upper, lower & digit", className: "text-text-muted" };
   return { label: "Strong", className: "text-positive" };
 }
 
@@ -41,15 +44,15 @@ export default function RegisterPage() {
       setError("Passwords do not match.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
     setLoading(true);
     try {
       const data = await registerRequest({ email, password });
-      login(data.access_token, email, data.role);
+      login(data.access_token, email, data.role, data.is_verified);
       showToast("Account created. Welcome!", "success");
       router.push("/dashboard");
     } catch (err) {
@@ -99,7 +102,7 @@ export default function RegisterPage() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
+                placeholder="At least 8 characters"
                 required
                 autoComplete="new-password"
               />

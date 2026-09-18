@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Activity } from "lucide-react";
@@ -22,6 +22,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("expired=1")) {
+      showToast("Your session has expired. Please log in again.", "info");
+    }
+  }, [showToast]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
@@ -29,7 +35,7 @@ export default function LoginPage() {
 
     try {
       const data = await loginRequest({ email, password });
-      login(data.access_token, email, data.role);
+      login(data.access_token, email, data.role, data.is_verified);
       showToast("Logged in successfully", "success");
       router.push("/dashboard");
     } catch (err) {

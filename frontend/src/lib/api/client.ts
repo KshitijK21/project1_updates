@@ -31,9 +31,10 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("user_email");
       // Full reload (not router.push) is intentional here: this runs outside
       // React's render cycle, and a hard redirect guarantees all in-memory
-      // app state is cleared when a session expires.
+      // app state is cleared when a session expires. The expired flag lets the
+      // login page explain what happened (see login/page.tsx).
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.href = "/login";
+      window.location.href = "/login?expired=1";
     }
     return Promise.reject(error);
   }

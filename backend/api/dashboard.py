@@ -28,6 +28,8 @@ def dashboard_kpis(dataset: Dataset = Depends(get_owned_dataset), db: Session = 
 @router.get("/{dataset_id}/chart")
 def dashboard_chart(dataset: Dataset = Depends(get_owned_dataset), dimension: str = "", measure: str = "",
                     aggregation: str = "SUM", db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if not dimension.strip() or not measure.strip():
+        raise HTTPException(status_code=400, detail="dimension and measure query parameters are required")
     warehouse = _get_warehouse(dataset, db)
     data = get_chart_data(warehouse.fact_table_name, dimension, measure, aggregation, engine)
     return {"dataset_id": str(dataset.id), "dimension": dimension, "measure": measure, "aggregation": aggregation, "data": data}
@@ -46,7 +48,16 @@ def dashboard_summary(dataset: Dataset = Depends(get_owned_dataset), db: Session
             chart_data = get_chart_data(warehouse.fact_table_name, dim["column"], primary_measure, "SUM", engine)
             charts.append({"dimension": dim["column"], "measure": primary_measure, "data": chart_data})
 
-    return {"dataset_id": str(dataset.id), "kpis": kpis, "charts": charts}
+    total_rows = (sum(k["count"] for k in kpis) // len(kpis)) if kpis else 0
+
+    return {
+        "dataset_id": str(dataset.id),
+        "kpis": kpis,
+        "charts": charts,
+        "total_rows": total_rows,
+        "total_measures": len(warehouse.measures),
+        "total_dimensions": len(warehouse.dimensions),
+    }
 
 
 @router.get("/{dataset_id}/drilldown")

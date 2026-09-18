@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
 import { runProfiling } from "@/lib/api/profiling";
 import { FullProfile } from "@/types/profile";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/utils/cn";
 
 function healthColor(score: number) {
@@ -17,6 +18,7 @@ function healthColor(score: number) {
 }
 
 export default function DataQualityPanel({ datasetId }: { datasetId: string }) {
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<FullProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -27,12 +29,14 @@ export default function DataQualityPanel({ datasetId }: { datasetId: string }) {
     try {
       const result = await runProfiling(datasetId);
       setProfile(result);
+      showToast(`Quality score ${result.health_score}/100`, "success");
     } catch {
       setError(true);
+      showToast("Analysis failed.", "error");
     } finally {
       setLoading(false);
     }
-  }, [datasetId]);
+  }, [datasetId, showToast]);
 
   const missingEntries = profile ? Object.entries(profile.missing_values).filter(([, v]) => v > 0) : [];
   const corrColumns = profile ? Object.keys(profile.correlation) : [];

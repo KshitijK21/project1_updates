@@ -36,6 +36,15 @@ async def upload_dataset(file: UploadFile = File(...), db: Session = Depends(get
     except Exception:
         df = pd.read_csv(file_path, encoding="latin-1") if extension == ".csv" else pd.read_excel(file_path)
 
+    existing = db.query(Dataset).filter(
+        Dataset.uploaded_by == user.id,
+        Dataset.name == file.filename,
+        Dataset.row_count == len(df)
+    ).first()
+    if existing:
+        os.remove(file_path)
+        raise HTTPException(status_code=409, detail="A dataset with this filename and row count already exists. Delete the existing one first or upload a different file.")
+
     dataset = Dataset(
         id=uuid.uuid4(), name=file.filename, source_type=extension.replace(".", ""),
         status="uploaded", file_path=file_path, row_count=len(df), column_count=len(df.columns),

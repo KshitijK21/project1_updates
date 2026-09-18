@@ -5,7 +5,12 @@ from sklearn.linear_model import LinearRegression
 
 def forecast_measure(df: pd.DataFrame, date_col: str, measure_col: str, periods: int = 7) -> dict:
     data = df[[date_col, measure_col]].dropna().copy()
-    data[date_col] = pd.to_datetime(data[date_col], dayfirst=True, errors="coerce")
+    # Parse dates with ISO/US ordering first; fall back to dayfirst for
+    # dd/mm/yyyy files, so no valid rows are dropped to NaT.
+    data[date_col] = pd.to_datetime(data[date_col], errors="coerce")
+    parsed = data[date_col].notna().sum()
+    if parsed < 3:
+        data[date_col] = pd.to_datetime(data[date_col], dayfirst=True, errors="coerce")
     data = data.dropna().sort_values(date_col)
 
     if len(data) < 3:

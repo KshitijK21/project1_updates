@@ -28,6 +28,7 @@ Columns: {', '.join(columns)}
 Rules:
 - Only generate SELECT statements. Never generate INSERT, UPDATE, DELETE, DROP, or ALTER.
 - Always wrap every column name in double quotes exactly as given (e.g. "Sales", "Region"), since PostgreSQL is case-sensitive for mixed-case column names.
+- When grouping (GROUP BY), the SELECT list MUST include every grouping column itself (e.g. SELECT "Region", SUM("Sales") FROM ... GROUP BY "Region"), so results are interpretable.
 - Return ONLY the raw SQL query, no explanation, no markdown formatting, no backticks.
 
 Question: {question}

@@ -18,7 +18,7 @@ def generate_warehouse(dataset: Dataset = Depends(get_owned_dataset),
     ext = os.path.splitext(dataset.file_path)[1].lower()
     df = load_dataframe(dataset.file_path)
 
-    schema = generate_star_schema(df, dataset.name)
+    schema = generate_star_schema(df, dataset.name, str(dataset.id))
     from database.db import engine
     from services.warehouse_service import load_data_to_sql
     load_data_to_sql(df, schema["fact_table_name"], engine)
