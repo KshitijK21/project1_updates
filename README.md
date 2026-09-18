@@ -53,11 +53,33 @@ run automatically before the backend boots.
 | Data Quality | Automated health score, missing-value, outlier and correlation analysis |
 | Cleaning | AI-guided suggestions for missing values, duplicates, outliers and mixed types |
 | Star Schema Warehouse | Auto-generated fact table, dimensions and searchable data dictionary |
-| Natural Language Analytics | Ask questions in plain English — the platform generates and runs SQL |
+| Natural Language Analytics | Ask questions in plain English — the platform generates and runs SQL against a semantic schema, self-heals broken queries and caches answers |
 | Anomalies & Root Cause | Automatic detection plus written explanations of contributing factors |
 | Forecasts | Time-series projections with trend annotations |
 | Reports | Executive summary, KPIs, anomaly table and recommendations — exported as PDF or PowerPoint |
 | Audit Log | Every significant action is recorded with actor, timestamp and endpoint |
+
+## AI Querying — How It Works
+
+Each question goes through a guarded pipeline:
+
+1. **Semantic context** — the warehouse data dictionary (column types, roles,
+   distinct counts, default aggregations) is injected into the LLM prompt so it
+   picks correct functions and stops guessing column names.
+2. **SQL generation** — the model produces a single `SELECT` (no write/DDL
+   operations, no comments, no multiple statements).
+3. **Self-healing** — every query is sanitized and checked against the schema. If
+   execution fails (e.g. a type mismatch), the error is fed back to the model and
+   it retries once with a corrected query before surfacing a readable `400`.
+4. **Guards** — a 30s `statement_timeout` prevents runaway scans; results are
+   capped at 200 rows (`truncated`/`total_rows` returned for the UI).
+5. **Caching** — identical questions per dataset are cached for 5 minutes,
+   cutting LLM latency and load.
+6. **Audit** — each query logs an `AI_QUERY` action (actor, timestamp, endpoint).
+7. **Explanation** — the model rewrites the rows as a short business answer.
+
+The LLM runs through Ollama. Point it at any Ollama model via env config — a
+small model is fine for development; swap in a larger one for production.
 
 ## Environment Variables
 
@@ -68,6 +90,8 @@ Copy `backend/.env.example` → `backend/.env` and fill in real values.
 | `DATABASE_URL` | SQLAlchemy connection string | `postgresql://postgres:postgres123@localhost:5432/autonomous_bi` |
 | `SECRET_KEY` | JWT signing secret — **required** | *none — service will not start* |
 | `CORS_ORIGINS` | Comma-separated allowed origins | `http://localhost:3000` |
+| `OLLAMA_URL` | Ollama server base URL | `http://localhost:11434` |
+| `OLLAMA_MODEL` | LLM used for SQL/analysis | `qwen2.5:3b` |
 
 Frontend variables (set in `.env.local` or via Docker `environment`):
 
@@ -95,6 +119,10 @@ cd frontend && npm run lint
 cd backend
 alembic revision --autogenerate -m "description"
 alembic upgrade head
+
+# AI regression suite (requires the backend + Ollama running)
+cd backend
+python tests/eval_ai.py          # uses a fresh throwaway account + fixture dataset
 ```
 
 ### Conventions

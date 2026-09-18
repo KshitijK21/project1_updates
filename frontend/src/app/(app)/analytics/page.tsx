@@ -302,6 +302,11 @@ export default function AnalyticsPage() {
                       ) : (
                         <p className="text-sm text-text-muted">No results returned.</p>
                       )}
+                      {entry.result.truncated && (
+                        <p className="text-xs text-text-muted">
+                          Showing first 200 of {entry.result.total_rows?.toLocaleString()} rows.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

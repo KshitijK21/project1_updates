@@ -3,6 +3,9 @@ export interface AiQueryResult {
   generated_sql: string;
   result: Record<string, unknown>[];
   explanation: string;
+  truncated?: boolean;
+  total_rows?: number;
+  cached?: boolean;
 }
 
 export interface ChatMessage {
